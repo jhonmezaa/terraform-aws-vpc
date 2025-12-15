@@ -252,4 +252,4 @@ None reported in this release.
 - [x] Security best practices implemented
 - [x] Cost optimization patterns documented
 
-[1.0.0]: https://github.com/yourusername/terraform-aws-vpc/releases/tag/v1.0.0
+[1.0.0]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.0
