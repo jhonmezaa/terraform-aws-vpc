@@ -1,0 +1,46 @@
+# Example terraform.tfvars for AWS Outposts VPC
+# Copy this file to terraform.tfvars and customize the values
+# This example demonstrates AWS Outposts integration
+
+# Note: Most variables have defaults in main.tf
+# Override any values here as needed
+
+# REQUIRED: Uncomment and configure these for Outposts
+# You must have an AWS Outpost deployed in your account
+
+# Example: Outpost configuration
+# outpost_subnets = ["10.9.100.0/24"]
+# outpost_arn = "arn:aws:outposts:us-east-1:123456789012:outpost/op-1234567890abcdef0"
+
+# Get your Outpost ARN from:
+# aws outposts list-outposts --region us-east-1 --query 'Outposts[*].[OutpostId,OutpostArn]'
+
+# Example: Customize cloud subnets
+# vpc_cidr_block = "10.9.0.0/16"
+
+# public_subnets = [
+#   "10.9.1.0/24",
+# ]
+
+# private_subnets = [
+#   "10.9.11.0/24",
+# ]
+
+# Example: Additional tags
+# tags = {
+#   Environment = "production"
+#   Outposts    = "enabled"
+#   Team        = "edge-computing"
+#   Location    = "datacenter-1"
+# }
+
+# Important notes:
+# 1. Outpost subnets must be in the same AZ as the Outpost
+# 2. Outpost subnet size depends on your Outpost capacity
+# 3. Local Gateway (LGW) is automatically created for Outpost
+# 4. You may need additional configuration for Local Gateway routes
+
+# After deployment:
+# - Verify Outpost subnet in AWS Console
+# - Check Local Gateway Route Table
+# - Test connectivity from Outpost to cloud subnets

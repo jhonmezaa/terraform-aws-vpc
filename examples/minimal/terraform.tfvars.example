@@ -1,0 +1,10 @@
+# Example terraform.tfvars for minimal VPC
+# Copy this file to terraform.tfvars and customize the values
+
+account_name = "demo"
+project_name = "minimal"
+
+public_subnets = [
+  "10.0.1.0/24",
+  "10.0.2.0/24",
+]
