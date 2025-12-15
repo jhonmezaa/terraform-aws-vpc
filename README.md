@@ -259,9 +259,9 @@ MIT License - see [LICENSE](LICENSE)
 
 ## Author
 
-Created and maintained by [Your Name]
+Created and maintained by [Jhon Meza](https://github.com/jhonmezaa)
 
 ## Support
 
-- Issues: [GitHub Issues](https://github.com/yourusername/terraform-aws-vpc/issues)
+- Issues: [GitHub Issues](https://github.com/jhonmezaa/terraform-aws-vpc/issues)
 - Documentation: [Examples](./examples/)
