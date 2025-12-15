@@ -1,0 +1,46 @@
+# Example terraform.tfvars for VPN Gateway VPC
+# Copy this file to terraform.tfvars and customize the values
+# This example demonstrates hybrid cloud connectivity
+
+# Note: Most variables have defaults in main.tf
+# Override any values here as needed
+
+# Example: Customize BGP ASN
+# The ASN must be different from your on-premises ASN
+# amazon_side_asn = 64512
+
+# Example: Change VPC CIDR (ensure no overlap with on-premises)
+# vpc_cidr_block = "10.4.0.0/16"
+
+# Example: Customize subnets
+# public_subnets = [
+#   "10.4.1.0/24",
+#   "10.4.2.0/24",
+#   "10.4.3.0/24",
+# ]
+
+# private_subnets = [
+#   "10.4.11.0/24",
+#   "10.4.12.0/24",
+#   "10.4.13.0/24",
+# ]
+
+# database_subnets = [
+#   "10.4.21.0/24",
+#   "10.4.22.0/24",
+#   "10.4.23.0/24",
+# ]
+
+# Example: Additional tags
+# tags = {
+#   Environment  = "production"
+#   Connectivity = "hybrid"
+#   Team         = "networking"
+#   OnPremises   = "connected"
+# }
+
+# After applying this configuration, create a VPN connection:
+# aws ec2 create-vpn-connection \
+#   --type ipsec.1 \
+#   --customer-gateway-id cgw-xxxxx \
+#   --vpn-gateway-id <output_vgw_id>

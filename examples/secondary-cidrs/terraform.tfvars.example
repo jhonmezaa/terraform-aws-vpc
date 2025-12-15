@@ -1,0 +1,52 @@
+# Example terraform.tfvars for Secondary CIDRs VPC
+# Copy this file to terraform.tfvars and customize the values
+# This example demonstrates VPC expansion with secondary CIDR blocks
+
+# Note: Most variables have defaults in main.tf
+# Override any values here as needed
+
+# Example: Customize primary CIDR
+# vpc_cidr_block = "10.6.0.0/16"
+
+# Example: Adjust secondary CIDRs
+# Ensure they don't overlap with existing networks
+# secondary_cidr_blocks = [
+#   "10.7.0.0/16",
+#   "10.8.0.0/16",
+#   "10.9.0.0/16",  # Add a third block if needed
+# ]
+
+# Example: Customize primary CIDR subnets
+# public_subnets = [
+#   "10.6.1.0/24",
+#   "10.6.2.0/24",
+#   "10.6.3.0/24",
+# ]
+
+# private_subnets = [
+#   "10.6.11.0/24",
+#   "10.6.12.0/24",
+#   "10.6.13.0/24",
+# ]
+
+# Note: To use secondary CIDRs for subnets, you would need to:
+# 1. Apply this configuration first
+# 2. Then manually create subnets in the secondary CIDR ranges
+# 3. Or extend the module to support secondary_public_subnets, etc.
+
+# Example: Additional tags
+# tags = {
+#   Environment = "production"
+#   Feature     = "secondary-cidrs"
+#   Team        = "networking"
+#   Expansion   = "true"
+# }
+
+# Planning considerations:
+# - AWS allows up to 5 CIDR blocks per VPC
+# - Secondary CIDRs must be from RFC 1918 ranges:
+#   - 10.0.0.0/8
+#   - 172.16.0.0/12
+#   - 192.168.0.0/16
+# - They cannot overlap with existing VPC peering connections
+# - Route table size limits may apply with many CIDRs

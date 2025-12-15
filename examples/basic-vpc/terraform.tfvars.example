@@ -1,0 +1,28 @@
+# Example terraform.tfvars for basic VPC
+# Copy this file to terraform.tfvars and customize the values
+
+account_name = "dev"
+project_name = "demo"
+
+vpc_cidr_block = "10.0.0.0/16"
+
+# Availability zones (short format - region auto-detected)
+azs = ["a", "b"]
+
+public_subnets = [
+  "10.0.1.0/24",  # AZ-a
+  "10.0.2.0/24",  # AZ-b
+]
+
+private_subnets = [
+  "10.0.11.0/24", # AZ-a
+  "10.0.12.0/24", # AZ-b
+]
+
+tags = {
+  Environment = "dev"
+  ManagedBy   = "terraform"
+  Example     = "basic-vpc"
+  Team        = "platform"
+  CostCenter  = "engineering"
+}

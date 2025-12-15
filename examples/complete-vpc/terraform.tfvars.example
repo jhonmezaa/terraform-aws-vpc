@@ -1,0 +1,63 @@
+# Example terraform.tfvars for complete VPC
+# Copy this file to terraform.tfvars and customize the values
+
+account_name = "prod"
+project_name = "ecommerce"
+
+vpc_cidr_block = "10.2.0.0/16"
+
+# Availability zones (short format - region auto-detected)
+azs = ["a", "b", "c"]
+
+# Public subnets - For ALB, NAT Gateway, Bastion
+public_subnets = [
+  "10.2.1.0/24",  # us-east-1a
+  "10.2.2.0/24",  # us-east-1b
+  "10.2.3.0/24",  # us-east-1c
+]
+
+# Private subnets - For EC2, ECS, EKS workloads
+private_subnets = [
+  "10.2.11.0/24", # us-east-1a
+  "10.2.12.0/24", # us-east-1b
+  "10.2.13.0/24", # us-east-1c
+]
+
+# Database subnets - For RDS, Aurora
+database_subnets = [
+  "10.2.21.0/24", # us-east-1a
+  "10.2.22.0/24", # us-east-1b
+  "10.2.23.0/24", # us-east-1c
+]
+
+# Elasticache subnets - For Redis, Memcached
+elasticache_subnets = [
+  "10.2.31.0/24", # us-east-1a
+  "10.2.32.0/24", # us-east-1b
+  "10.2.33.0/24", # us-east-1c
+]
+
+# Redshift subnets - For Data Warehouse
+redshift_subnets = [
+  "10.2.41.0/24", # us-east-1a
+  "10.2.42.0/24", # us-east-1b
+  "10.2.43.0/24", # us-east-1c
+]
+
+# Intra subnets - For resources with no internet access
+intra_subnets = [
+  "10.2.51.0/24", # us-east-1a
+  "10.2.52.0/24", # us-east-1b
+  "10.2.53.0/24", # us-east-1c
+]
+
+tags = {
+  Environment = "production"
+  CostCenter  = "engineering"
+  Terraform   = "true"
+  Backup      = "daily"
+  Compliance  = "pci-dss"
+  Example     = "complete-vpc"
+  Team        = "platform"
+  Application = "ecommerce"
+}

@@ -1,0 +1,66 @@
+# Example terraform.tfvars for Network ACLs VPC
+# Copy this file to terraform.tfvars and customize the values
+# This example demonstrates custom Network ACLs for enhanced security
+
+# Note: Most variables have defaults in main.tf
+# Override any values here as needed
+
+# Example: Customize VPC CIDR
+# vpc_cidr_block = "10.5.0.0/16"
+
+# Example: Adjust public NACL rules
+# Add SSH access (be cautious in production)
+# public_inbound_acl_rules = [
+#   {
+#     rule_number = 100
+#     rule_action = "allow"
+#     from_port   = 80
+#     to_port     = 80
+#     protocol    = "tcp"
+#     cidr_block  = "0.0.0.0/0"
+#   },
+#   {
+#     rule_number = 110
+#     rule_action = "allow"
+#     from_port   = 443
+#     to_port     = 443
+#     protocol    = "tcp"
+#     cidr_block  = "0.0.0.0/0"
+#   },
+#   {
+#     rule_number = 120
+#     rule_action = "allow"
+#     from_port   = 22
+#     to_port     = 22
+#     protocol    = "tcp"
+#     cidr_block  = "YOUR_IP_ADDRESS/32"  # Replace with your IP
+#   },
+#   {
+#     rule_number = 130
+#     rule_action = "allow"
+#     from_port   = 1024
+#     to_port     = 65535
+#     protocol    = "tcp"
+#     cidr_block  = "0.0.0.0/0"
+#   },
+# ]
+
+# Example: Database NACL for MySQL instead of PostgreSQL
+# database_inbound_acl_rules = [
+#   {
+#     rule_number = 100
+#     rule_action = "allow"
+#     from_port   = 3306
+#     to_port     = 3306
+#     protocol    = "tcp"
+#     cidr_block  = "10.5.11.0/24"
+#   },
+# ]
+
+# Example: Additional tags
+# tags = {
+#   Environment = "production"
+#   Security    = "enhanced"
+#   Compliance  = "pci-dss"
+#   Team        = "security"
+# }

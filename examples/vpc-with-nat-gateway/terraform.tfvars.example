@@ -1,0 +1,40 @@
+# Example terraform.tfvars for VPC with NAT Gateway
+# Copy this file to terraform.tfvars and customize the values
+
+account_name = "staging"
+project_name = "app"
+
+vpc_cidr_block = "10.1.0.0/16"
+
+# Availability zones (short format - region auto-detected)
+azs = ["a", "b", "c"]
+
+# Public subnets - For load balancers and NAT Gateways
+public_subnets = [
+  "10.1.1.0/24",  # us-east-1a
+  "10.1.2.0/24",  # us-east-1b
+  "10.1.3.0/24",  # us-east-1c
+]
+
+# Private subnets - For application workloads
+private_subnets = [
+  "10.1.11.0/24", # us-east-1a
+  "10.1.12.0/24", # us-east-1b
+  "10.1.13.0/24", # us-east-1c
+]
+
+# Database subnets - For RDS/Aurora
+database_subnets = [
+  "10.1.21.0/24", # us-east-1a
+  "10.1.22.0/24", # us-east-1b
+  "10.1.23.0/24", # us-east-1c
+]
+
+tags = {
+  Environment = "staging"
+  ManagedBy   = "terraform"
+  Example     = "vpc-with-nat-gateway"
+  Team        = "platform"
+  CostCenter  = "engineering"
+  Backup      = "daily"
+}
