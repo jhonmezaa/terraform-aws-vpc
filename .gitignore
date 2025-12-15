@@ -37,5 +37,8 @@ terraform.rc
 *~
 .DS_Store
 
+# AI Assistant documentation (local only)
+CLAUDE.md
+
 # Terraform lock file (optional - comment out if you want to commit it)
 # .terraform.lock.hcl
