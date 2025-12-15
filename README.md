@@ -45,7 +45,7 @@ Production-ready Terraform module for creating AWS Virtual Private Clouds (VPCs)
 
 ### Basic VPC
 
-\`\`\`hcl
+```hcl
 module "vpc" {
   source = "./vpc"
 
@@ -61,11 +61,11 @@ module "vpc" {
     Environment = "dev"
   }
 }
-\`\`\`
+```
 
 ### Production VPC with HA NAT
 
-\`\`\`hcl
+```hcl
 module "vpc" {
   source = "./vpc"
 
@@ -86,9 +86,9 @@ module "vpc" {
   one_nat_gateway_per_az = true
 
   # VPC Flow Logs
-  enable_flow_log                                 = true
-  flow_log_destination_type                       = "cloud-watch-logs"
-  create_flow_log_cloudwatch_iam_role             = true
+  enable_flow_log                     = true
+  flow_log_destination_type           = "cloud-watch-logs"
+  create_flow_log_cloudwatch_iam_role = true
 
   # VPC Endpoints
   enable_s3_endpoint       = true
@@ -98,7 +98,7 @@ module "vpc" {
     Environment = "production"
   }
 }
-\`\`\`
+```
 
 ## Examples
 
@@ -139,37 +139,43 @@ See the [examples](./examples/) directory for 9 complete examples:
 
 ### NAT Gateway Strategies
 
-\`\`\`hcl
-# No NAT ($0/month)
+**No NAT ($0/month)**
+```hcl
 enable_nat_gateway = false
+```
 
-# Single NAT ($32/month - SPOF)
+**Single NAT ($32/month - SPOF)**
+```hcl
 enable_nat_gateway = true
 single_nat_gateway = true
+```
 
-# Per-AZ NAT ($96/month for 3 AZs - HA)
+**Per-AZ NAT ($96/month for 3 AZs - HA)**
+```hcl
 enable_nat_gateway     = true
 one_nat_gateway_per_az = true
-\`\`\`
+```
 
 ### Short AZ Format
 
-\`\`\`hcl
-# Short format (recommended)
+**Short format (recommended)**
+```hcl
 azs = ["a", "b", "c"]  # Auto-detects region
+```
 
-# Full format (also supported)
+**Full format (also supported)**
+```hcl
 azs = ["us-east-1a", "us-east-1b", "us-east-1c"]
-\`\`\`
+```
 
 ### Naming Convention
 
-All resources follow: \`{region_prefix}-{resource}-{account}-{project}[-{az}]\`
+All resources follow: `{region_prefix}-{resource}-{account}-{project}[-{az}]`
 
-Examples:
-- VPC: \`ause1-vpc-prod-myapp\`
-- Subnet: \`ause1-subnet-public-prod-myapp-us-east-1a\`
-- NAT: \`ause1-nat-prod-myapp-us-east-1a\`
+**Examples:**
+- VPC: `ause1-vpc-prod-myapp`
+- Subnet: `ause1-subnet-public-prod-myapp-us-east-1a`
+- NAT: `ause1-nat-prod-myapp-us-east-1a`
 
 ## Core Inputs
 
@@ -203,7 +209,7 @@ See [outputs.tf](./vpc/6-outputs.tf) for complete list (100+ outputs).
 
 ## Module Structure
 
-\`\`\`
+```text
 vpc/
 ├── 0-versions.tf           # Provider requirements
 ├── 1-vpc.tf                # VPC resource
@@ -220,29 +226,32 @@ vpc/
 ├── 12-dhcp-options.tf      # DHCP Options
 ├── 13-nacls.tf             # Network ACLs
 └── 14-vpn-gateway.tf       # VPN Gateway
-\`\`\`
+```
 
 ## Best Practices
 
-### Production
-- Use 3 AZs for HA
-- Enable NAT Gateway per AZ
-- Enable VPC Flow Logs
-- Use private subnets for workloads
-- Enable VPC Endpoints
+### Production Deployments
+
+- ✅ **Use 3 AZs** for high availability
+- ✅ **Enable NAT Gateway per AZ** to avoid SPOF
+- ✅ **Enable VPC Flow Logs** for monitoring and compliance
+- ✅ **Use private subnets** for application workloads
+- ✅ **Enable VPC Endpoints** to reduce NAT Gateway costs
 
 ### Cost Optimization
-- Disable NAT for dev/test
-- Use single NAT for non-critical
-- Implement VPC Endpoints
-- Right-size subnet allocations
+
+- 💰 **Disable NAT** for dev/test environments ($0/month)
+- 💰 **Use single NAT Gateway** for non-critical workloads ($32/month)
+- 💰 **Implement VPC Endpoints** to avoid data transfer charges
+- 💰 **Right-size subnet allocations** to minimize IP waste
 
 ### Security
-- Never use public subnets for databases
-- Implement Network ACLs
-- Enable Flow Logs
-- Use private subnets
-- Apply least-privilege policies
+
+- 🔒 **Never use public subnets** for databases or backend services
+- 🔒 **Implement Network ACLs** for defense in depth
+- 🔒 **Enable VPC Flow Logs** for security monitoring
+- 🔒 **Use private subnets** for all workloads
+- 🔒 **Apply least-privilege** security group policies
 
 ## License
 
