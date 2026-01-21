@@ -29,7 +29,7 @@ locals {
   }
 
   # Determine region prefix (use provided or derive from current region)
-  region_prefix = var.region_prefix != null ? var.region_prefix : lookup(local.region_prefix_map, data.aws_region.current.name, "unknown")
+  region_prefix = var.region_prefix != null ? var.region_prefix : lookup(local.region_prefix_map, data.aws_region.current.id, "unknown")
 
   # VPC creation flag
   create_vpc = var.create_vpc
@@ -47,7 +47,7 @@ locals {
   # If user provides full AZ names (us-east-1a), use them as-is
   azs = var.azs != null ? [
     for az in var.azs :
-    length(az) == 1 ? "${data.aws_region.current.name}${az}" : az
+    length(az) == 1 ? "${data.aws_region.current.id}${az}" : az
   ] : local.available_azs
 
   # Number of AZs
@@ -330,7 +330,7 @@ locals {
       ManagedBy   = "Terraform"
       Project     = var.project_name
       Account     = var.account_name
-      Region      = data.aws_region.current.name
+      Region      = data.aws_region.current.id
       RegionCode  = local.region_prefix
     },
     var.tags
