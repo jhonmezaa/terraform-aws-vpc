@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-01-21
+
+### Fixed
+
+#### Technical Improvements
+- **AWS Region Data Source**: Changed from `data.aws_region.current.name` to `data.aws_region.current.id` for better reliability
+  - Updated `vpc/9-locals.tf`: 3 occurrences (region_prefix lookup, AZ expansion, common_tags)
+  - Updated `vpc/10-vpc-endpoints.tf`: 2 occurrences (S3 and DynamoDB service names)
+  - **Rationale**: The `id` attribute is more reliable and consistent than `name`
+  - **Impact**: No functional change, better compatibility with AWS provider best practices
+
+### Changed
+
+#### Version Constraints
+- **Terraform version**: Changed from `~> 1.0` to `>= 1.0` for greater flexibility
+- **AWS Provider version**: Changed from `~> 5.0` to `>= 5.0` for greater flexibility
+- **Rationale**: Allows users to use newer versions of Terraform and AWS provider without module updates
+- **Impact**: Better forward compatibility, no breaking changes
+
+---
+
 ## [1.0.1] - 2024-12-15
 
 ### Fixed
