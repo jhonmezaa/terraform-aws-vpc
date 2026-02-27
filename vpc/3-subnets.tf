@@ -269,9 +269,9 @@ resource "aws_subnet" "intra" {
 resource "aws_subnet" "outpost" {
   for_each = local.create_outpost_subnets ? {
     for idx, cidr in var.outpost_subnets : idx => {
-      cidr      = cidr
-      az        = element(local.azs, idx)
-      name      = element(local.outpost_subnet_names, idx)
+      cidr        = cidr
+      az          = element(local.azs, idx)
+      name        = element(local.outpost_subnet_names, idx)
       outpost_arn = var.outpost_arn
     }
   } : {}

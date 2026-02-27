@@ -58,8 +58,8 @@ locals {
   ################################################################################
 
   # Public subnets
-  len_public_subnets      = max(length(var.public_subnets))
-  create_public_subnets   = local.create_vpc && local.len_public_subnets > 0
+  len_public_subnets        = max(length(var.public_subnets))
+  create_public_subnets     = local.create_vpc && local.len_public_subnets > 0
   create_public_route_table = local.create_public_subnets
 
   # Private subnets
@@ -67,18 +67,18 @@ locals {
   create_private_subnets = local.create_vpc && local.len_private_subnets > 0
 
   # Database subnets
-  len_database_subnets      = max(length(var.database_subnets))
-  create_database_subnets   = local.create_vpc && local.len_database_subnets > 0
+  len_database_subnets         = max(length(var.database_subnets))
+  create_database_subnets      = local.create_vpc && local.len_database_subnets > 0
   create_database_subnet_group = local.create_database_subnets && var.create_database_subnet_group
 
   # Elasticache subnets
-  len_elasticache_subnets      = max(length(var.elasticache_subnets))
-  create_elasticache_subnets   = local.create_vpc && local.len_elasticache_subnets > 0
+  len_elasticache_subnets         = max(length(var.elasticache_subnets))
+  create_elasticache_subnets      = local.create_vpc && local.len_elasticache_subnets > 0
   create_elasticache_subnet_group = local.create_elasticache_subnets && var.create_elasticache_subnet_group
 
   # Redshift subnets
-  len_redshift_subnets      = max(length(var.redshift_subnets))
-  create_redshift_subnets   = local.create_vpc && local.len_redshift_subnets > 0
+  len_redshift_subnets         = max(length(var.redshift_subnets))
+  create_redshift_subnets      = local.create_vpc && local.len_redshift_subnets > 0
   create_redshift_subnet_group = local.create_redshift_subnets && var.create_redshift_subnet_group
 
   # Intra subnets (no internet access)
@@ -123,8 +123,8 @@ locals {
   # Internet Gateway
   ################################################################################
 
-  create_igw              = local.create_vpc && var.create_igw && local.create_public_subnets
-  create_egress_only_igw  = local.create_vpc && var.create_egress_only_igw && var.enable_ipv6
+  create_igw             = local.create_vpc && var.create_igw && local.create_public_subnets
+  create_egress_only_igw = local.create_vpc && var.create_egress_only_igw && var.enable_ipv6
 
   ################################################################################
   # VPN Gateway
@@ -161,13 +161,13 @@ locals {
   # Network ACLs
   ################################################################################
 
-  manage_default_network_acl    = local.create_vpc && var.manage_default_network_acl
-  create_public_network_acl     = local.create_public_subnets && var.public_dedicated_network_acl
-  create_private_network_acl    = local.create_private_subnets && var.private_dedicated_network_acl
-  create_database_network_acl   = local.create_database_subnets && var.database_dedicated_network_acl
+  manage_default_network_acl     = local.create_vpc && var.manage_default_network_acl
+  create_public_network_acl      = local.create_public_subnets && var.public_dedicated_network_acl
+  create_private_network_acl     = local.create_private_subnets && var.private_dedicated_network_acl
+  create_database_network_acl    = local.create_database_subnets && var.database_dedicated_network_acl
   create_elasticache_network_acl = local.create_elasticache_subnets && var.elasticache_dedicated_network_acl
-  create_redshift_network_acl   = local.create_redshift_subnets && var.redshift_dedicated_network_acl
-  create_intra_network_acl      = local.create_intra_subnets && var.intra_dedicated_network_acl
+  create_redshift_network_acl    = local.create_redshift_subnets && var.redshift_dedicated_network_acl
+  create_intra_network_acl       = local.create_intra_subnets && var.intra_dedicated_network_acl
 
   ################################################################################
   # Naming Conventions
@@ -327,11 +327,11 @@ locals {
   # Common tags applied to all resources
   common_tags = merge(
     {
-      ManagedBy   = "Terraform"
-      Project     = var.project_name
-      Account     = var.account_name
-      Region      = data.aws_region.current.id
-      RegionCode  = local.region_prefix
+      ManagedBy  = "Terraform"
+      Project    = var.project_name
+      Account    = var.account_name
+      Region     = data.aws_region.current.id
+      RegionCode = local.region_prefix
     },
     var.tags
   )

@@ -29,7 +29,7 @@ module "vpc" {
   enable_dns_support   = true
 
   tags = {
-    Environment = "production"
+    Environment  = "production"
     Connectivity = "hybrid"
   }
 }
