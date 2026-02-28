@@ -3,14 +3,14 @@
 ## [v1.0.4] - 2026-02-27
 
 ### Changed
-- Standardize Terraform `required_version` to `~> 1.0` across module and examples
 
+- Standardize Terraform `required_version` to `~> 1.0` across module and examples
 
 ## [v1.0.3] - 2026-02-27
 
 ### Changed
-- Update AWS provider constraint to `~> 6.0` across module and examples
 
+- Update AWS provider constraint to `~> 6.0` across module and examples
 
 All notable changes to this project will be documented in this file.
 
@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 #### Technical Improvements
+
 - **AWS Region Data Source**: Changed from `data.aws_region.current.name` to `data.aws_region.current.id` for better reliability
   - Updated `vpc/9-locals.tf`: 3 occurrences (region_prefix lookup, AZ expansion, common_tags)
   - Updated `vpc/10-vpc-endpoints.tf`: 2 occurrences (S3 and DynamoDB service names)
@@ -31,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 #### Version Constraints
+
 - **Terraform version**: Changed from `~> 1.0` to `>= 1.0` for greater flexibility
 - **AWS Provider version**: Changed from `~> 5.0` to `>= 5.0` for greater flexibility
 - **Rationale**: Allows users to use newer versions of Terraform and AWS provider without module updates
@@ -43,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 #### Documentation
+
 - Fixed markdown code block formatting in README.md
 - Corrected escaped backticks to proper code fences
 - Added language specifiers (hcl, text) to code blocks
@@ -60,6 +63,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 ### Added
 
 #### Core VPC Features
+
 - VPC creation with customizable CIDR blocks
 - Support for 7 subnet types: Public, Private, Database, Elasticache, Redshift, Intra, Outpost
 - Multi-AZ deployment support (1-16 availability zones)
@@ -69,6 +73,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Consistent resource naming convention across all resources
 
 #### Subnet Management
+
 - Public subnets with Internet Gateway access
 - Private subnets with NAT Gateway support
 - Database subnets with automatic subnet group creation
@@ -81,6 +86,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - IPv6 support for all subnet types
 
 #### NAT Gateway Strategies
+
 - No NAT Gateway (cost optimization)
 - Single NAT Gateway (SPOF, lowest cost)
 - One NAT Gateway per Availability Zone (HA)
@@ -89,6 +95,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Automatic Elastic IP creation and management
 
 #### Internet Connectivity
+
 - Internet Gateway creation and management
 - Egress-only Internet Gateway for IPv6
 - VPN Gateway for hybrid cloud connectivity
@@ -96,12 +103,14 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Custom BGP ASN support for VPN Gateway
 
 #### VPC Endpoints
+
 - S3 Gateway Endpoint support
 - DynamoDB Gateway Endpoint support
 - Custom VPC Endpoint configuration
 - Automatic route table association
 
 #### Network Security
+
 - Custom Network ACL support for all subnet types
 - Dedicated Network ACL per subnet type
 - Inbound and outbound NACL rules
@@ -109,6 +118,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Security group ready architecture
 
 #### VPC Flow Logs
+
 - CloudWatch Logs destination support
 - S3 destination support
 - Kinesis Firehose destination support
@@ -119,6 +129,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - File format options (plain-text, parquet)
 
 #### Route Management
+
 - Automatic route table creation per AZ
 - Public route table (single for all public subnets)
 - Private route tables (per AZ or per subnet)
@@ -130,6 +141,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Separate route resources for better management
 
 #### DHCP Options
+
 - Custom DNS servers configuration
 - Custom domain name configuration
 - NTP servers configuration
@@ -137,6 +149,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - NetBIOS node type configuration
 
 #### Availability Zone Features
+
 - Short-format AZ specification (`azs = ["a", "b", "c"]`)
 - Full-format AZ support (`azs = ["us-east-1a", ...]`)
 - Auto-detection of available AZs
@@ -144,6 +157,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Region-portable configurations
 
 #### Tagging
+
 - Global tags applied to all resources
 - Resource-specific tag support for:
   - VPC
@@ -160,6 +174,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Common tags (ManagedBy, Project, Account, Region)
 
 #### Outputs
+
 - VPC outputs (ID, CIDR, ARN, IPv6 CIDR)
 - All subnet IDs by type
 - Route table IDs
@@ -175,6 +190,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - 100+ total outputs
 
 #### Examples
+
 - **minimal**: Absolute minimum configuration ($0/month)
 - **basic-vpc**: Development environment with public/private subnets ($0/month)
 - **vpc-with-nat-gateway**: Production with HA NAT Gateway (~$96/month)
@@ -187,6 +203,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Example validation script (`validate-all.sh`)
 
 #### Documentation
+
 - Comprehensive README with usage examples
 - Feature comparison matrix
 - Cost estimation for all examples
@@ -198,6 +215,7 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 - Architecture diagrams
 
 #### Code Quality
+
 - Terraform 1.0+ compatibility
 - AWS Provider 5.0+ compatibility
 - Numbered file organization (0-14)
@@ -210,23 +228,27 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 ### Technical Details
 
 #### Supported Regions
+
 - All AWS commercial regions
 - Automatic region prefix mapping for 20+ regions
 - Custom region prefix override support
 
 #### Resource Limits
+
 - Up to 16 availability zones
 - Up to 5 secondary CIDR blocks
 - Unlimited subnets per type (AWS limits apply)
 - Up to 100 Network ACL rules per subnet type
 
 #### Performance
+
 - Efficient use of for_each over count
 - Minimal resource dependencies
 - Optimized data source queries
 - Lazy evaluation of optional resources
 
 #### Compatibility
+
 - Terraform >= 1.0
 - AWS Provider >= 5.0
 - Compatible with Terraform Cloud
@@ -236,31 +258,38 @@ First production-ready release of the AWS VPC Terraform module with comprehensiv
 ### Fixed
 
 #### Flow Logs
+
 - Fixed `destination_options` only appearing for S3 destinations
 - Resolved CloudWatch Logs compatibility issue
 
 #### Network ACLs
+
 - Fixed NACL rule attribute names (`rule_number` vs `rule_no`)
 - Corrected NACL rule action names (`rule_action` vs `action`)
 
 #### VPN Gateway
+
 - Fixed VPN Gateway ID reference in route propagation
 - Corrected conditional logic for existing vs created VPN Gateway
 
 #### Locals
+
 - Fixed `region_prefix` null comparison (was `!= ""`, now `!= null`)
 - Fixed subnet name list comparisons (was `!= []`, now `length() > 0`)
 
 #### AZ Processing
+
 - Implemented short-format AZ expansion logic
 - Fixed region auto-detection for AZ names
 
 ### Dependencies
 
 #### Required Providers
+
 - hashicorp/aws >= 5.0
 
 #### Terraform Version
+
 - terraform >= 1.0
 
 ### Notes

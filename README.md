@@ -9,6 +9,7 @@ Production-ready Terraform module for creating AWS Virtual Private Clouds (VPCs)
 ## Features
 
 ### 🌐 Network Architecture
+
 - **7 Subnet Types**: Public, Private, Database, Elasticache, Redshift, Intra, Outpost
 - **Multi-AZ Support**: High availability across availability zones
 - **IPv4 & IPv6**: Full dual-stack networking support
@@ -16,12 +17,14 @@ Production-ready Terraform module for creating AWS Virtual Private Clouds (VPCs)
 - **NAT Strategies**: No NAT, Single NAT, Per-AZ NAT, Per-Subnet NAT
 
 ### 🔒 Security
+
 - **Network ACLs**: Custom rules per subnet type
 - **VPC Flow Logs**: CloudWatch or S3 destinations
 - **Security Groups**: Integrated with AWS best practices
 - **Private Subnets**: Isolated workload deployment
 
 ### 🔌 Connectivity
+
 - **Internet Gateway**: Public internet access
 - **NAT Gateway**: Outbound internet from private subnets
 - **VPN Gateway**: Hybrid cloud connectivity
@@ -29,6 +32,7 @@ Production-ready Terraform module for creating AWS Virtual Private Clouds (VPCs)
 - **Egress-only IGW**: IPv6 outbound-only access
 
 ### ⚙️ Advanced Features
+
 - **DHCP Options**: Custom DNS, NTP, NetBIOS configuration
 - **Route Propagation**: VPN Gateway route distribution
 - **Subnet Groups**: RDS, Elasticache, Redshift ready
@@ -36,6 +40,7 @@ Production-ready Terraform module for creating AWS Virtual Private Clouds (VPCs)
 - **AWS Outposts**: Edge computing support
 
 ### 🏷️ Management
+
 - **Consistent Naming**: Auto-generated resource names
 - **Flexible Tagging**: Resource-level tag customization
 - **Short AZ Format**: Region-portable configuration (\`azs = ["a", "b", "c"]\`)
@@ -104,53 +109,56 @@ module "vpc" {
 
 See the [examples](./examples/) directory for 9 complete examples:
 
-| Example | Description | Cost/Month |
-|---------|-------------|------------|
-| [minimal](./examples/minimal/) | Minimum configuration | $0 |
-| [basic-vpc](./examples/basic-vpc/) | Development | $0 |
-| [vpc-with-nat-gateway](./examples/vpc-with-nat-gateway/) | Production HA | ~$96 |
-| [complete-vpc](./examples/complete-vpc/) | Enterprise | ~$100 |
-| [ipv6-vpc](./examples/ipv6-vpc/) | IPv6 dual-stack | ~$96 |
-| [vpn-gateway](./examples/vpn-gateway/) | Hybrid connectivity | ~$132 |
-| [network-acls](./examples/network-acls/) | Enhanced security | ~$96 |
-| [secondary-cidrs](./examples/secondary-cidrs/) | IP expansion | ~$96 |
-| [outposts](./examples/outposts/) | AWS Outposts | Varies |
+| Example                                                  | Description           | Cost/Month |
+| -------------------------------------------------------- | --------------------- | ---------- |
+| [minimal](./examples/minimal/)                           | Minimum configuration | $0         |
+| [basic-vpc](./examples/basic-vpc/)                       | Development           | $0         |
+| [vpc-with-nat-gateway](./examples/vpc-with-nat-gateway/) | Production HA         | ~$96       |
+| [complete-vpc](./examples/complete-vpc/)                 | Enterprise            | ~$100      |
+| [ipv6-vpc](./examples/ipv6-vpc/)                         | IPv6 dual-stack       | ~$96       |
+| [vpn-gateway](./examples/vpn-gateway/)                   | Hybrid connectivity   | ~$132      |
+| [network-acls](./examples/network-acls/)                 | Enhanced security     | ~$96       |
+| [secondary-cidrs](./examples/secondary-cidrs/)           | IP expansion          | ~$96       |
+| [outposts](./examples/outposts/)                         | AWS Outposts          | Varies     |
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| terraform | >= 1.0 |
-| aws | >= 5.0 |
+| Name      | Version |
+| --------- | ------- |
+| terraform | >= 1.0  |
+| aws       | >= 5.0  |
 
 ## Key Features
 
 ### Subnet Types
 
-| Type | Purpose | Internet | Use Case |
-|------|---------|----------|----------|
-| Public | Internet-facing | Yes | Load balancers |
-| Private | Apps | Via NAT | EC2, ECS, EKS |
-| Database | RDS/Aurora | No | Databases |
-| Elasticache | Cache | No | Redis/Memcached |
-| Redshift | Analytics | No | Data warehouse |
-| Intra | Isolated | No | Internal services |
-| Outpost | Edge | Varies | AWS Outposts |
+| Type        | Purpose         | Internet | Use Case          |
+| ----------- | --------------- | -------- | ----------------- |
+| Public      | Internet-facing | Yes      | Load balancers    |
+| Private     | Apps            | Via NAT  | EC2, ECS, EKS     |
+| Database    | RDS/Aurora      | No       | Databases         |
+| Elasticache | Cache           | No       | Redis/Memcached   |
+| Redshift    | Analytics       | No       | Data warehouse    |
+| Intra       | Isolated        | No       | Internal services |
+| Outpost     | Edge            | Varies   | AWS Outposts      |
 
 ### NAT Gateway Strategies
 
 **No NAT ($0/month)**
+
 ```hcl
 enable_nat_gateway = false
 ```
 
 **Single NAT ($32/month - SPOF)**
+
 ```hcl
 enable_nat_gateway = true
 single_nat_gateway = true
 ```
 
 **Per-AZ NAT ($96/month for 3 AZs - HA)**
+
 ```hcl
 enable_nat_gateway     = true
 one_nat_gateway_per_az = true
@@ -159,11 +167,13 @@ one_nat_gateway_per_az = true
 ### Short AZ Format
 
 **Short format (recommended)**
+
 ```hcl
 azs = ["a", "b", "c"]  # Auto-detects region
 ```
 
 **Full format (also supported)**
+
 ```hcl
 azs = ["us-east-1a", "us-east-1b", "us-east-1c"]
 ```
@@ -173,37 +183,38 @@ azs = ["us-east-1a", "us-east-1b", "us-east-1c"]
 All resources follow: `{region_prefix}-{resource}-{account}-{project}[-{az}]`
 
 **Examples:**
+
 - VPC: `ause1-vpc-prod-myapp`
 - Subnet: `ause1-subnet-public-prod-myapp-us-east-1a`
 - NAT: `ause1-nat-prod-myapp-us-east-1a`
 
 ## Core Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| account_name | Account name | string | - | yes |
-| project_name | Project name | string | - | yes |
-| vpc_cidr_block | VPC CIDR | string | "10.0.0.0/16" | no |
-| azs | Availability zones | list(string) | null | no |
-| public_subnets | Public subnet CIDRs | list(string) | [] | no |
-| private_subnets | Private subnet CIDRs | list(string) | [] | no |
-| database_subnets | Database subnet CIDRs | list(string) | [] | no |
-| enable_nat_gateway | Create NAT Gateway | bool | false | no |
-| one_nat_gateway_per_az | NAT per AZ | bool | false | no |
+| Name                   | Description           | Type         | Default       | Required |
+| ---------------------- | --------------------- | ------------ | ------------- | -------- |
+| account_name           | Account name          | string       | -             | yes      |
+| project_name           | Project name          | string       | -             | yes      |
+| vpc_cidr_block         | VPC CIDR              | string       | "10.0.0.0/16" | no       |
+| azs                    | Availability zones    | list(string) | null          | no       |
+| public_subnets         | Public subnet CIDRs   | list(string) | []            | no       |
+| private_subnets        | Private subnet CIDRs  | list(string) | []            | no       |
+| database_subnets       | Database subnet CIDRs | list(string) | []            | no       |
+| enable_nat_gateway     | Create NAT Gateway    | bool         | false         | no       |
+| one_nat_gateway_per_az | NAT per AZ            | bool         | false         | no       |
 
 See [variables.tf](./vpc/7-variables.tf) for complete list (120+ variables).
 
 ## Core Outputs
 
-| Name | Description |
-|------|-------------|
-| vpc_id | VPC ID |
-| vpc_cidr_block | VPC CIDR |
-| public_subnets | Public subnet IDs |
-| private_subnets | Private subnet IDs |
-| database_subnet_group_name | RDS subnet group |
-| nat_ids | NAT Gateway IDs |
-| nat_public_ips | NAT public IPs |
+| Name                       | Description        |
+| -------------------------- | ------------------ |
+| vpc_id                     | VPC ID             |
+| vpc_cidr_block             | VPC CIDR           |
+| public_subnets             | Public subnet IDs  |
+| private_subnets            | Private subnet IDs |
+| database_subnet_group_name | RDS subnet group   |
+| nat_ids                    | NAT Gateway IDs    |
+| nat_public_ips             | NAT public IPs     |
 
 See [outputs.tf](./vpc/6-outputs.tf) for complete list (100+ outputs).
 

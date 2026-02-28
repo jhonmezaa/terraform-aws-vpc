@@ -1155,6 +1155,12 @@ variable "region_prefix" {
   default     = null
 }
 
+variable "use_region_prefix" {
+  description = "Whether to include the region prefix in resource names. When false, names omit the region prefix."
+  type        = bool
+  default     = true
+}
+
 variable "vpc_name" {
   description = "Name to be used on the VPC. If not provided, will be auto-generated."
   type        = string

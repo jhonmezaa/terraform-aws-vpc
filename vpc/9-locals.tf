@@ -173,26 +173,26 @@ locals {
   # Naming Conventions
   ################################################################################
 
-  # Base name components
-  name_prefix = "${local.region_prefix}-${var.account_name}-${var.project_name}"
+  # Name prefix: includes region prefix with trailing dash, or empty string
+  name_prefix = var.use_region_prefix ? "${local.region_prefix}-" : ""
 
   # VPC name
-  vpc_name = var.vpc_name != null ? var.vpc_name : "${local.region_prefix}-vpc-${var.account_name}-${var.project_name}"
+  vpc_name = var.vpc_name != null ? var.vpc_name : "${local.name_prefix}vpc-${var.account_name}-${var.project_name}"
 
   # Internet Gateway name
-  igw_name = var.igw_name != null ? var.igw_name : "${local.region_prefix}-igw-${var.account_name}-${var.project_name}"
+  igw_name = var.igw_name != null ? var.igw_name : "${local.name_prefix}igw-${var.account_name}-${var.project_name}"
 
   # Egress-only Internet Gateway name
-  eigw_name = "${local.region_prefix}-eigw-${var.account_name}-${var.project_name}"
+  eigw_name = "${local.name_prefix}eigw-${var.account_name}-${var.project_name}"
 
   # VPN Gateway name
-  vpn_gateway_name = "${local.region_prefix}-vgw-${var.account_name}-${var.project_name}"
+  vpn_gateway_name = "${local.name_prefix}vgw-${var.account_name}-${var.project_name}"
 
   # DHCP Options name
-  dhcp_options_name = "${local.region_prefix}-dhcp-${var.account_name}-${var.project_name}"
+  dhcp_options_name = "${local.name_prefix}dhcp-${var.account_name}-${var.project_name}"
 
   # Default Network ACL name
-  default_network_acl_name = var.default_network_acl_name != null ? var.default_network_acl_name : "${local.region_prefix}-nacl-default-${var.account_name}-${var.project_name}"
+  default_network_acl_name = var.default_network_acl_name != null ? var.default_network_acl_name : "${local.name_prefix}nacl-default-${var.account_name}-${var.project_name}"
 
   ################################################################################
   # Subnet Naming
