@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.1.1] - 2026-10-27
+
+### Changed
+
+- Use minimum-only version constraints in the module (`vpc/`): AWS provider `~> 6.0` -> `>= 6.0`, so callers are not blocked from newer major provider versions
+- Set module `required_version` to `>= 1.3` (was `~> 1.0`): the minimum real Terraform version, since variables use `optional()` object attributes (Terraform 1.3+)
+- Examples (root modules) keep pessimistic constraints: `required_version` `~> 1.3`, AWS provider `~> 6.0`
+- Update README requirements table and Terraform badge
+
 ## [v1.0.4] - 2026-02-27
 
 ### Changed
