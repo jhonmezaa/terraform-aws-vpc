@@ -1,5 +1,10 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [v1.1.2] - 2026-10-27
 
 ### Fixed
@@ -42,12 +47,7 @@
 
 - Update AWS provider constraint to `~> 6.0` across module and examples
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [1.0.2] - 2026-01-21
+## [v1.0.2] - 2026-01-21
 
 ### Fixed
 
@@ -70,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.1] - 2024-12-15
+## [v1.0.1] - 2024-12-15
 
 ### Fixed
 
@@ -84,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved NAT Gateway Strategies section formatting
 - Enhanced Best Practices section with emojis and better structure
 
-## [1.0.0] - 2024-12-14
+## [v1.0.0] - 2024-12-14
 
 ### 🎉 Initial Release
 
@@ -357,5 +357,5 @@ None reported in this release.
 - [x] Security best practices implemented
 - [x] Cost optimization patterns documented
 
-[1.0.1]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.1
-[1.0.0]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.0
+[v1.0.1]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.1
+[v1.0.0]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.0
