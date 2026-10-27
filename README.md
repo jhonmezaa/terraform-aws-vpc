@@ -2,7 +2,7 @@
 
 Production-ready Terraform module for creating AWS Virtual Private Clouds (VPCs) with comprehensive networking features.
 
-[![Terraform](https://img.shields.io/badge/terraform-%3E%3D1.0-blue.svg)](https://www.terraform.io/downloads.html)
+[![Terraform](https://img.shields.io/badge/terraform-%3E%3D1.3-blue.svg)](https://www.terraform.io/downloads.html)
 [![AWS Provider](https://img.shields.io/badge/AWS%20Provider-%3E%3D5.0-orange.svg)](https://registry.terraform.io/providers/hashicorp/aws/latest)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -125,8 +125,8 @@ See the [examples](./examples/) directory for 9 complete examples:
 
 | Name      | Version |
 | --------- | ------- |
-| terraform | >= 1.0  |
-| aws       | >= 5.0  |
+| terraform | >= 1.3  |
+| aws       | >= 6.0  |
 
 ## Key Features
 
