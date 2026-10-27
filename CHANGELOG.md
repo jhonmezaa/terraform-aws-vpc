@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.1.2] - 2026-10-27
+
+### Fixed
+
+- Replace deprecated `data.aws_region.current.id` with `data.aws_region.current.region` (AWS provider v6) in `vpc/9-locals.tf` and `vpc/10-vpc-endpoints.tf`
+
+### Changed
+
+- Stop tracking `.terraform.lock.hcl` and add it to `.gitignore`
+
 ## [v1.1.1] - 2026-10-27
 
 ### Changed
@@ -8,6 +18,17 @@
 - Set module `required_version` to `>= 1.3` (was `~> 1.0`): the minimum real Terraform version, since variables use `optional()` object attributes (Terraform 1.3+)
 - Examples (root modules) keep pessimistic constraints: `required_version` `~> 1.3`, AWS provider `~> 6.0`
 - Update README requirements table and Terraform badge
+
+## [v1.1.0] - 2026-02-28
+
+### Added
+
+- `use_region_prefix` boolean variable (default: `true`) to control whether the region prefix is included in resource names. When `false`, names omit the prefix
+
+### Changed
+
+- `name_prefix` local now resolves to the region prefix with a trailing dash (or an empty string when `use_region_prefix = false`) and is used to build the VPC, Internet Gateway, Egress-only Internet Gateway, VPN Gateway, DHCP Options and default Network ACL names
+- Update README and reformat CHANGELOG
 
 ## [v1.0.4] - 2026-02-27
 
