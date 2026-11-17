@@ -32,10 +32,10 @@ module "vpc" {
   enable_dns_support   = true
 
   # Tags
-  tags = var.tags
+  tags_common = var.tags
 
   vpc_tags = {
-    Name = "${var.account_name}-${var.project_name}-vpc"
+    Component = "network"
   }
 
   public_subnet_tags = {
