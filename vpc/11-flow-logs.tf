@@ -59,18 +59,27 @@ resource "aws_iam_role" "flow_log_cloudwatch" {
 data "aws_iam_policy_document" "flow_log_cloudwatch" {
   count = local.create_flow_log_cloudwatch_iam_role ? 1 : 0
 
+  # Least privilege: scoped to the flow log's log group (as in the upstream module)
   statement {
     sid = "AWSVPCFlowLogsPushToCloudWatch"
 
     actions = [
-      "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+    ]
+
+    resources = ["${local.flow_log_cloudwatch_log_group_arn}:*"]
+  }
+
+  statement {
+    sid = "AWSVPCFlowLogsDescribeCloudWatchLogGroups"
+
+    actions = [
       "logs:DescribeLogGroups",
       "logs:DescribeLogStreams",
     ]
 
-    resources = ["*"]
+    resources = [local.flow_log_cloudwatch_log_group_arn]
   }
 }
 

@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Name` and `ManagedBy = "Terraform"` are now merged last on every resource, so they can no longer be overridden by `tags` or per-resource tag maps
 - `vpc_endpoint_tags` is now applied to the S3 and DynamoDB endpoints (it was declared but ignored)
 - `flow_log_cloudwatch_iam_role_name` is now used for the flow log IAM role name (it was declared but ignored)
+- The flow log IAM role policy is scoped to the flow log's log group (`<arn>:*` for `CreateLogStream`/`PutLogEvents`, `<arn>` for `Describe*`) instead of `"*"`, and no longer grants `logs:CreateLogGroup` (the module creates the group or you provide it), as in the upstream module
 - `flow_log_cloudwatch_log_group_name_prefix` is marked as deprecated in its description (it has never been used)
 - Clarify that `create_<database|elasticache|redshift>_internet_gateway_route` creates a route to the NAT Gateway
 - README: module `source` uses `github.com/jhonmezaa/terraform-aws-vpc//vpc?ref=<tag>`, AWS provider badge `>= 6.0`, correct file names, naming/tagging conventions and new inputs/outputs
