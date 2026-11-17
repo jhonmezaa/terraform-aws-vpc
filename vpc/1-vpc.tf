@@ -35,7 +35,7 @@ resource "aws_vpc" "this" {
 ################################################################################
 
 resource "aws_vpc_ipv4_cidr_block_association" "this" {
-  for_each = toset(var.secondary_cidr_blocks)
+  for_each = local.create_vpc ? toset(var.secondary_cidr_blocks) : toset([])
 
   vpc_id = aws_vpc.this[0].id
 

@@ -21,9 +21,10 @@ resource "aws_egress_only_internet_gateway" "this" {
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
+    local.common_tags,
     {
-      Name = local.eigw_name
-    },
-    local.common_tags
+      Name      = local.eigw_name
+      ManagedBy = "Terraform"
+    }
   )
 }

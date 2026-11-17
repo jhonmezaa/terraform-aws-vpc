@@ -11,11 +11,12 @@ resource "aws_eip" "nat" {
   domain = "vpc"
 
   tags = merge(
-    {
-      Name = local.eip_names[tonumber(each.key)]
-    },
     local.common_tags,
-    var.nat_eip_tags
+    var.nat_eip_tags,
+    {
+      Name      = local.eip_names[tonumber(each.key)]
+      ManagedBy = "Terraform"
+    }
   )
 
   depends_on = [aws_internet_gateway.this]
@@ -38,17 +39,18 @@ resource "aws_nat_gateway" "this" {
   ) : aws_eip.nat[each.key].id
 
   # Determine which public subnet to use based on strategy
-  subnet_id = element(
-    [for subnet in aws_subnet.public : subnet.id],
-    element(local.nat_gateway_public_subnet_indices, tonumber(each.key))
-  )
+  # Index by numeric key (map iteration order is lexical: "10" < "2")
+  subnet_id = aws_subnet.public[tostring(
+    local.nat_gateway_public_subnet_indices[tonumber(each.key)] % local.len_public_subnets
+  )].id
 
   tags = merge(
-    {
-      Name = local.nat_gateway_names[tonumber(each.key)]
-    },
     local.common_tags,
-    var.nat_gateway_tags
+    var.nat_gateway_tags,
+    {
+      Name      = local.nat_gateway_names[tonumber(each.key)]
+      ManagedBy = "Terraform"
+    }
   )
 
   depends_on = [aws_internet_gateway.this]
