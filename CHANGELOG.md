@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.2.0] - 2026-11-17
+
+### Added
+
+- `manage_default_security_group` (default `false`) with `default_security_group_name`, `default_security_group_ingress`, `default_security_group_egress` and `default_security_group_tags`: optionally adopt the VPC default security group and remove all of its rules (CIS AWS Foundations 5.4), as in the upstream module
+- `ipv6_cidr_block` support in all dedicated Network ACL rules and in `default_network_acl_ingress`/`default_network_acl_egress` (the default NACL also honours `icmp_type`/`icmp_code` now)
+- Outputs (parity with `terraform-aws-modules/vpc/aws`): `vpc_instance_tenancy`, `vpc_ipv6_association_id`, `vpc_secondary_cidr_blocks`, `default_security_group_id`, `default_route_table_id`, `egress_only_internet_gateway_id`, `natgw_interface_ids`, `outpost_subnets_cidr_blocks`, `vpc_flow_log_destination_arn`, `vpc_flow_log_destination_type` and `<type>_subnets_ipv6_cidr_blocks` for public, private, database, elasticache, redshift and intra subnets
+- Region prefixes for `eu-central-2`, `eu-south-2`, `ap-south-2`, `ap-southeast-3`, `ap-southeast-4`, `ca-west-1`, `me-central-1` and `il-central-1` (previously resolved to `unknown`)
+- Validation of `account_name` and `project_name` (1-32 characters, `^[a-z0-9-]+$`)
+
+### Changed
+
+- `tags_common` is no longer deprecated and is now applied to every resource (it was declared but ignored). It is merged before `tags`, which still wins on key conflicts
+- `Name` and `ManagedBy = "Terraform"` are now merged last on every resource, so they can no longer be overridden by `tags` or per-resource tag maps
+- `vpc_endpoint_tags` is now applied to the S3 and DynamoDB endpoints (it was declared but ignored)
+- `flow_log_cloudwatch_iam_role_name` is now used for the flow log IAM role name (it was declared but ignored)
+- `flow_log_cloudwatch_log_group_name_prefix` is marked as deprecated in its description (it has never been used)
+- Clarify that `create_<database|elasticache|redshift>_internet_gateway_route` creates a route to the NAT Gateway
+- README: module `source` uses `github.com/jhonmezaa/terraform-aws-vpc//vpc?ref=<tag>`, AWS provider badge `>= 6.0`, correct file names, naming/tagging conventions and new inputs/outputs
+
+### Fixed
+
+- `use_region_prefix = false` was ignored by subnets, route tables, NAT Gateways, EIPs, subnet groups, Network ACLs, VPC endpoints and the flow log IAM role, which always kept the region prefix
+- Providing `flow_log_cloudwatch_log_group_name` without `flow_log_cloudwatch_log_group_arn` failed with `Invalid index`; the ARN is now built from the current partition, region and account
+- `create_vpc = false` failed with `Invalid index` when `secondary_cidr_blocks` or `vpn_gateway_id` (with `enable_vpn_gateway`) were set; VPN route propagation to the public route table no longer fails when there are no public subnets
+- With 11 or more subnets (or NAT Gateways) per tier, NAT Gateway placement, NAT routes and list outputs followed lexical key order (`"10"` before `"2"`); they now follow the input order
+
+### Upgrade notes
+
+- Only if you set `use_region_prefix = false`: the generated names of the resources listed above lose the region prefix. Tag-only changes are applied in place, but the database/elasticache/redshift subnet groups and the flow log IAM role are replaced because their `name` changes. Set `database_subnet_group_name`, `elasticache_subnet_group_name`, `redshift_subnet_group_name` and `flow_log_cloudwatch_iam_role_name` to the previous names to keep them
+- If you set a `Name` key in `tags` or in a per-resource tag map (for example `vpc_tags`), it is now ignored: use `vpc_name`, `igw_name`, `<type>_subnet_names`, `default_network_acl_name` or the `*_subnet_group_name` variables instead
+- If you passed `tags_common`, those tags are now added to every resource (in-place tag update)
+- `account_name`/`project_name` values with uppercase letters, underscores or more than 32 characters are now rejected at plan time
+- With the default `use_region_prefix = true` and 10 or fewer subnets per tier there are no changes to existing resources
+
 ## [v1.1.3] - 2026-10-27
 
 ### Changed
@@ -363,5 +398,13 @@ None reported in this release.
 - [x] Security best practices implemented
 - [x] Cost optimization patterns documented
 
+[v1.2.0]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.2.0
+[v1.1.3]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.1.3
+[v1.1.2]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.1.2
+[v1.1.1]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.1.1
+[v1.1.0]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.1.0
+[v1.0.4]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.4
+[v1.0.3]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.3
+[v1.0.2]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.2
 [v1.0.1]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.1
 [v1.0.0]: https://github.com/jhonmezaa/terraform-aws-vpc/releases/tag/v1.0.0

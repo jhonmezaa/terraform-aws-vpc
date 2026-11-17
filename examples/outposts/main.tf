@@ -18,7 +18,7 @@ module "vpc" {
   create_igw         = true
   enable_nat_gateway = true
 
-  tags = {
+  tags_common = {
     Environment = "production"
     Outposts    = "enabled"
   }

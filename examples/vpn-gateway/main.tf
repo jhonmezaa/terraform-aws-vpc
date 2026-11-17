@@ -28,7 +28,7 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = {
+  tags_common = {
     Environment  = "production"
     Connectivity = "hybrid"
   }

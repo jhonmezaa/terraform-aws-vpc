@@ -121,7 +121,7 @@ module "vpc" {
     },
   ]
 
-  tags = {
+  tags_common = {
     Environment = "production"
     Security    = "enhanced"
   }
