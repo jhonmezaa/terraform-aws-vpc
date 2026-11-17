@@ -278,7 +278,7 @@ variable "create_database_subnet_route_table" {
 }
 
 variable "create_database_internet_gateway_route" {
-  description = "Controls if an internet gateway route for database should be created."
+  description = "Controls if a default route (0.0.0.0/0) to the NAT Gateway is created in the database route tables. Despite its name (kept for backward compatibility), the route targets the NAT Gateway, not the Internet Gateway. Requires create_database_subnet_route_table = true and enable_nat_gateway = true."
   type        = bool
   default     = false
 }
@@ -348,7 +348,7 @@ variable "create_elasticache_subnet_route_table" {
 }
 
 variable "create_elasticache_internet_gateway_route" {
-  description = "Controls if an internet gateway route for elasticache should be created."
+  description = "Controls if a default route (0.0.0.0/0) to the NAT Gateway is created in the elasticache route tables. Despite its name (kept for backward compatibility), the route targets the NAT Gateway, not the Internet Gateway. Requires create_elasticache_subnet_route_table = true and enable_nat_gateway = true."
   type        = bool
   default     = false
 }
@@ -418,7 +418,7 @@ variable "create_redshift_subnet_route_table" {
 }
 
 variable "create_redshift_internet_gateway_route" {
-  description = "Controls if an internet gateway route for redshift should be created."
+  description = "Controls if a default route (0.0.0.0/0) to the NAT Gateway is created in the redshift route tables. Despite its name (kept for backward compatibility), the route targets the NAT Gateway, not the Internet Gateway. Requires create_redshift_subnet_route_table = true and enable_nat_gateway = true."
   type        = bool
   default     = false
 }
@@ -731,7 +731,7 @@ variable "flow_log_max_aggregation_interval" {
 }
 
 variable "flow_log_cloudwatch_log_group_name_prefix" {
-  description = "Specifies the name prefix of CloudWatch Log Group for VPC flow logs."
+  description = "DEPRECATED: not used. The log group name is flow_log_cloudwatch_log_group_name or \"/aws/vpc/flowlogs/<vpc name>\"."
   type        = string
   default     = "/aws/vpc-flow-log/"
 }
@@ -761,7 +761,7 @@ variable "create_flow_log_cloudwatch_iam_role" {
 }
 
 variable "flow_log_cloudwatch_iam_role_name" {
-  description = "Name to use on the VPC Flow Log CloudWatch IAM role."
+  description = "Name to use on the VPC Flow Log CloudWatch IAM role. If null, it is auto-generated."
   type        = string
   default     = null
 }
@@ -831,7 +831,7 @@ variable "enable_dynamodb_endpoint" {
 }
 
 variable "vpc_endpoint_tags" {
-  description = "Additional tags for the VPC endpoints."
+  description = "Additional tags for all VPC endpoints (S3 and DynamoDB). Endpoint-specific tags take precedence."
   type        = map(string)
   default     = {}
 }
@@ -862,6 +862,36 @@ variable "default_network_acl_name" {
   description = "Name to be used on the default network ACL."
   type        = string
   default     = null
+}
+
+variable "manage_default_security_group" {
+  description = "Should be true to adopt and manage the default security group of the VPC. With the default empty rule lists, all ingress and egress rules are removed from it (CIS AWS Foundations 5.4)."
+  type        = bool
+  default     = false
+}
+
+variable "default_security_group_name" {
+  description = "Name to be used on the default security group (Name tag). If null, it is auto-generated."
+  type        = string
+  default     = null
+}
+
+variable "default_security_group_ingress" {
+  description = "List of maps of ingress rules to set on the default security group. Keys: from_port, to_port, protocol, cidr_blocks, ipv6_cidr_blocks, prefix_list_ids, security_groups, self, description."
+  type        = list(map(string))
+  default     = []
+}
+
+variable "default_security_group_egress" {
+  description = "List of maps of egress rules to set on the default security group. Keys: from_port, to_port, protocol, cidr_blocks, ipv6_cidr_blocks, prefix_list_ids, security_groups, self, description."
+  type        = list(map(string))
+  default     = []
+}
+
+variable "default_security_group_tags" {
+  description = "Additional tags for the default security group."
+  type        = map(string)
+  default     = {}
 }
 
 variable "default_network_acl_tags" {
@@ -944,13 +974,13 @@ variable "intra_dedicated_network_acl" {
 
 # Network ACL Rules
 variable "default_network_acl_ingress" {
-  description = "List of maps of ingress rules to set on the default network ACL."
+  description = "List of maps of ingress rules to set on the default network ACL. Keys: rule_number, rule_action, protocol, cidr_block or ipv6_cidr_block, from_port, to_port, icmp_type, icmp_code."
   type        = list(map(string))
   default     = []
 }
 
 variable "default_network_acl_egress" {
-  description = "List of maps of egress rules to set on the default network ACL."
+  description = "List of maps of egress rules to set on the default network ACL. Keys: rule_number, rule_action, protocol, cidr_block or ipv6_cidr_block, from_port, to_port, icmp_type, icmp_code."
   type        = list(map(string))
   default     = []
 }
@@ -958,14 +988,15 @@ variable "default_network_acl_egress" {
 variable "public_inbound_acl_rules" {
   description = "Public subnets inbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -973,14 +1004,15 @@ variable "public_inbound_acl_rules" {
 variable "public_outbound_acl_rules" {
   description = "Public subnets outbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -988,14 +1020,15 @@ variable "public_outbound_acl_rules" {
 variable "private_inbound_acl_rules" {
   description = "Private subnets inbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1003,14 +1036,15 @@ variable "private_inbound_acl_rules" {
 variable "private_outbound_acl_rules" {
   description = "Private subnets outbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1018,14 +1052,15 @@ variable "private_outbound_acl_rules" {
 variable "database_inbound_acl_rules" {
   description = "Database subnets inbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1033,14 +1068,15 @@ variable "database_inbound_acl_rules" {
 variable "database_outbound_acl_rules" {
   description = "Database subnets outbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1048,14 +1084,15 @@ variable "database_outbound_acl_rules" {
 variable "elasticache_inbound_acl_rules" {
   description = "Elasticache subnets inbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1063,14 +1100,15 @@ variable "elasticache_inbound_acl_rules" {
 variable "elasticache_outbound_acl_rules" {
   description = "Elasticache subnets outbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1078,14 +1116,15 @@ variable "elasticache_outbound_acl_rules" {
 variable "redshift_inbound_acl_rules" {
   description = "Redshift subnets inbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1093,14 +1132,15 @@ variable "redshift_inbound_acl_rules" {
 variable "redshift_outbound_acl_rules" {
   description = "Redshift subnets outbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1108,14 +1148,15 @@ variable "redshift_outbound_acl_rules" {
 variable "intra_inbound_acl_rules" {
   description = "Intra subnets inbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1123,14 +1164,15 @@ variable "intra_inbound_acl_rules" {
 variable "intra_outbound_acl_rules" {
   description = "Intra subnets outbound network ACL rules."
   type = list(object({
-    rule_number = number
-    rule_action = string
-    protocol    = string
-    cidr_block  = optional(string)
-    from_port   = optional(number)
-    to_port     = optional(number)
-    icmp_type   = optional(number)
-    icmp_code   = optional(number)
+    rule_number     = number
+    rule_action     = string
+    protocol        = string
+    cidr_block      = optional(string)
+    ipv6_cidr_block = optional(string)
+    from_port       = optional(number)
+    to_port         = optional(number)
+    icmp_type       = optional(number)
+    icmp_code       = optional(number)
   }))
   default = []
 }
@@ -1142,11 +1184,31 @@ variable "intra_outbound_acl_rules" {
 variable "account_name" {
   description = "Account name for resource naming (replaces environment)."
   type        = string
+
+  validation {
+    condition     = length(var.account_name) >= 1 && length(var.account_name) <= 32
+    error_message = "account_name debe tener entre 1 y 32 caracteres."
+  }
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]+$", var.account_name))
+    error_message = "account_name solo puede contener letras minúsculas, números y guiones (-)."
+  }
 }
 
 variable "project_name" {
   description = "Project name for resource naming."
   type        = string
+
+  validation {
+    condition     = length(var.project_name) >= 1 && length(var.project_name) <= 32
+    error_message = "project_name debe tener entre 1 y 32 caracteres."
+  }
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]+$", var.project_name))
+    error_message = "project_name solo puede contener letras minúsculas, números y guiones (-)."
+  }
 }
 
 variable "region_prefix" {
@@ -1180,7 +1242,7 @@ variable "tags" {
 }
 
 variable "tags_common" {
-  description = "DEPRECATED: Use 'tags' instead. A map of tags to add to all resources."
+  description = "A map of tags to add to all resources (convention shared by the jhonmezaa/terraform-aws-* modules). Merged with tags; tags wins on key conflicts."
   type        = map(string)
   default     = {}
 }

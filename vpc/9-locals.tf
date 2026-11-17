@@ -26,6 +26,17 @@ locals {
     sa-east-1      = "sae1"
     me-south-1     = "mes1"
     af-south-1     = "afs1"
+    # Regions added later use the canonical prefixes shared by the other
+    # jhonmezaa/terraform-aws-* modules. Existing entries above are kept as-is
+    # to avoid renaming (and recreating) already-deployed resources.
+    eu-central-2   = "euce2"
+    eu-south-2     = "euso2"
+    ap-south-2     = "apso2"
+    ap-southeast-3 = "apse3"
+    ap-southeast-4 = "apse4"
+    ca-west-1      = "cawe1"
+    me-central-1   = "mece1"
+    il-central-1   = "ilce1"
   }
 
   # Determine region prefix (use provided or derive from current region)
@@ -131,7 +142,7 @@ locals {
   ################################################################################
 
   create_vpn_gateway = local.create_vpc && var.enable_vpn_gateway
-  enable_vpn_gateway = var.enable_vpn_gateway
+  enable_vpn_gateway = local.create_vpn_gateway
 
   ################################################################################
   # DHCP Options
@@ -194,6 +205,9 @@ locals {
   # Default Network ACL name
   default_network_acl_name = var.default_network_acl_name != null ? var.default_network_acl_name : "${local.name_prefix}nacl-default-${var.account_name}-${var.project_name}"
 
+  # Default Security Group name (Name tag only; AWS keeps the group name "default")
+  default_security_group_name = var.default_security_group_name != null ? var.default_security_group_name : "${local.name_prefix}secgrp-default-${var.account_name}-${var.project_name}"
+
   ################################################################################
   # Subnet Naming
   ################################################################################
@@ -201,43 +215,43 @@ locals {
   # Public subnet names
   public_subnet_names = length(var.public_subnet_names) > 0 ? var.public_subnet_names : [
     for i, cidr in var.public_subnets :
-    "${local.region_prefix}-subnet-${var.public_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}subnet-${var.public_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   # Private subnet names
   private_subnet_names = length(var.private_subnet_names) > 0 ? var.private_subnet_names : [
     for i, cidr in var.private_subnets :
-    "${local.region_prefix}-subnet-${var.private_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}subnet-${var.private_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   # Database subnet names
   database_subnet_names = length(var.database_subnet_names) > 0 ? var.database_subnet_names : [
     for i, cidr in var.database_subnets :
-    "${local.region_prefix}-subnet-${var.database_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}subnet-${var.database_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   # Elasticache subnet names
   elasticache_subnet_names = length(var.elasticache_subnet_names) > 0 ? var.elasticache_subnet_names : [
     for i, cidr in var.elasticache_subnets :
-    "${local.region_prefix}-subnet-${var.elasticache_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}subnet-${var.elasticache_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   # Redshift subnet names
   redshift_subnet_names = length(var.redshift_subnet_names) > 0 ? var.redshift_subnet_names : [
     for i, cidr in var.redshift_subnets :
-    "${local.region_prefix}-subnet-${var.redshift_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}subnet-${var.redshift_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   # Intra subnet names
   intra_subnet_names = length(var.intra_subnet_names) > 0 ? var.intra_subnet_names : [
     for i, cidr in var.intra_subnets :
-    "${local.region_prefix}-subnet-${var.intra_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}subnet-${var.intra_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   # Outpost subnet names
   outpost_subnet_names = length(var.outpost_subnet_names) > 0 ? var.outpost_subnet_names : [
     for i, cidr in var.outpost_subnets :
-    "${local.region_prefix}-subnet-${var.outpost_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}subnet-${var.outpost_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   ################################################################################
@@ -245,36 +259,36 @@ locals {
   ################################################################################
 
   # Public route table name (single for all public subnets)
-  public_route_table_name = "${local.region_prefix}-rtb-${var.public_subnet_suffix}-${var.account_name}-${var.project_name}"
+  public_route_table_name = "${local.name_prefix}rtb-${var.public_subnet_suffix}-${var.account_name}-${var.project_name}"
 
   # Private route table names (per AZ if one_nat_gateway_per_az, otherwise per subnet)
   private_route_table_names = [
     for i in range(local.len_private_subnets) :
-    "${local.region_prefix}-rtb-${var.private_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}rtb-${var.private_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   # Database route table names
   database_route_table_names = var.create_database_subnet_route_table ? [
     for i in range(local.len_database_subnets) :
-    "${local.region_prefix}-rtb-${var.database_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}rtb-${var.database_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ] : []
 
   # Elasticache route table names
   elasticache_route_table_names = var.create_elasticache_subnet_route_table ? [
     for i in range(local.len_elasticache_subnets) :
-    "${local.region_prefix}-rtb-${var.elasticache_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}rtb-${var.elasticache_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ] : []
 
   # Redshift route table names
   redshift_route_table_names = var.create_redshift_subnet_route_table ? [
     for i in range(local.len_redshift_subnets) :
-    "${local.region_prefix}-rtb-${var.redshift_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}rtb-${var.redshift_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ] : []
 
   # Intra route table names
   intra_route_table_names = [
     for i in range(local.len_intra_subnets) :
-    "${local.region_prefix}-rtb-${var.intra_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}rtb-${var.intra_subnet_suffix}-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   ################################################################################
@@ -283,7 +297,7 @@ locals {
 
   nat_gateway_names = [
     for i in range(local.nat_gateway_count) :
-    "${local.region_prefix}-nat-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}nat-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   ################################################################################
@@ -292,92 +306,109 @@ locals {
 
   eip_names = [
     for i in range(local.nat_gateway_count) :
-    "${local.region_prefix}-eip-nat-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
+    "${local.name_prefix}eip-nat-${var.account_name}-${var.project_name}-${element(local.azs, i)}"
   ]
 
   ################################################################################
   # Database Subnet Group Naming
   ################################################################################
 
-  database_subnet_group_name = var.database_subnet_group_name != null ? var.database_subnet_group_name : "${local.region_prefix}-dbsubnetgroup-${var.account_name}-${var.project_name}"
+  database_subnet_group_name = var.database_subnet_group_name != null ? var.database_subnet_group_name : "${local.name_prefix}dbsubnetgroup-${var.account_name}-${var.project_name}"
 
   ################################################################################
   # Elasticache Subnet Group Naming
   ################################################################################
 
-  elasticache_subnet_group_name = var.elasticache_subnet_group_name != null ? var.elasticache_subnet_group_name : "${local.region_prefix}-ecsubnetgroup-${var.account_name}-${var.project_name}"
+  elasticache_subnet_group_name = var.elasticache_subnet_group_name != null ? var.elasticache_subnet_group_name : "${local.name_prefix}ecsubnetgroup-${var.account_name}-${var.project_name}"
 
   ################################################################################
   # Redshift Subnet Group Naming
   ################################################################################
 
-  redshift_subnet_group_name = var.redshift_subnet_group_name != null ? var.redshift_subnet_group_name : "${local.region_prefix}-rssubnetgroup-${var.account_name}-${var.project_name}"
+  redshift_subnet_group_name = var.redshift_subnet_group_name != null ? var.redshift_subnet_group_name : "${local.name_prefix}rssubnetgroup-${var.account_name}-${var.project_name}"
 
   ################################################################################
   # Flow Logs Naming
   ################################################################################
 
   flow_log_cloudwatch_log_group_name = var.flow_log_cloudwatch_log_group_name != null ? var.flow_log_cloudwatch_log_group_name : "/aws/vpc/flowlogs/${local.vpc_name}"
-  flow_log_cloudwatch_iam_role_name  = "${local.region_prefix}-role-vpcflowlogs-${var.account_name}-${var.project_name}"
+  flow_log_cloudwatch_iam_role_name  = coalesce(var.flow_log_cloudwatch_iam_role_name, "${local.name_prefix}role-vpcflowlogs-${var.account_name}-${var.project_name}")
+
+  # Log group ARN used by the flow log. When an existing log group name is
+  # provided without its ARN, the ARN is built from the current partition,
+  # region and account so the module does not reference a log group it did
+  # not create.
+  flow_log_cloudwatch_log_group_arn = var.flow_log_cloudwatch_log_group_arn != null ? var.flow_log_cloudwatch_log_group_arn : (
+    local.create_flow_log_cloudwatch_log_group ? try(aws_cloudwatch_log_group.flow_log[0].arn, null) : "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:${local.flow_log_cloudwatch_log_group_name}"
+  )
 
   ################################################################################
   # Tagging
   ################################################################################
 
   # Common tags applied to all resources
+  # Common tags applied to all resources. `tags_common` is the convention used
+  # across the jhonmezaa/terraform-aws-* modules; `tags` is kept for backward
+  # compatibility and wins on key conflicts. `Name` and `ManagedBy` are always
+  # set last on every resource.
   common_tags = merge(
     {
-      ManagedBy  = "Terraform"
       Project    = var.project_name
       Account    = var.account_name
       Region     = data.aws_region.current.region
       RegionCode = local.region_prefix
     },
+    var.tags_common,
     var.tags
   )
 
   # VPC tags
   vpc_tags = merge(
-    {
-      Name = local.vpc_name
-    },
     local.common_tags,
-    var.vpc_tags
+    var.vpc_tags,
+    {
+      Name      = local.vpc_name
+      ManagedBy = "Terraform"
+    }
   )
 
   # Internet Gateway tags
   igw_tags = merge(
-    {
-      Name = local.igw_name
-    },
     local.common_tags,
-    var.igw_tags
+    var.igw_tags,
+    {
+      Name      = local.igw_name
+      ManagedBy = "Terraform"
+    }
   )
 
   # DHCP Options tags
   dhcp_options_tags = merge(
-    {
-      Name = local.dhcp_options_name
-    },
     local.common_tags,
-    var.dhcp_options_tags
+    var.dhcp_options_tags,
+    {
+      Name      = local.dhcp_options_name
+      ManagedBy = "Terraform"
+    }
   )
 
   # VPN Gateway tags
   vpn_gateway_tags = merge(
-    {
-      Name = local.vpn_gateway_name
-    },
     local.common_tags,
-    var.vpn_gateway_tags
+    var.vpn_gateway_tags,
+    {
+      Name      = local.vpn_gateway_name
+      ManagedBy = "Terraform"
+    }
   )
 
   # Default Network ACL tags
   default_network_acl_tags = merge(
-    {
-      Name = local.default_network_acl_name
-    },
     local.common_tags,
-    var.default_network_acl_tags
+    var.default_network_acl_tags,
+    {
+      Name      = local.default_network_acl_name
+      ManagedBy = "Terraform"
+    }
   )
 }

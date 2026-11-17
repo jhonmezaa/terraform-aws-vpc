@@ -27,12 +27,15 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = var.map_public_ip_on_launch
 
   tags = merge(
+    local.common_tags,
     {
-      Name = each.value.name
       Type = "public"
     },
-    local.common_tags,
-    var.public_subnet_tags
+    var.public_subnet_tags,
+    {
+      Name      = each.value.name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -62,12 +65,15 @@ resource "aws_subnet" "private" {
   ) : null
 
   tags = merge(
+    local.common_tags,
     {
-      Name = each.value.name
       Type = "private"
     },
-    local.common_tags,
-    var.private_subnet_tags
+    var.private_subnet_tags,
+    {
+      Name      = each.value.name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -97,12 +103,15 @@ resource "aws_subnet" "database" {
   ) : null
 
   tags = merge(
+    local.common_tags,
     {
-      Name = each.value.name
       Type = "database"
     },
-    local.common_tags,
-    var.database_subnet_tags
+    var.database_subnet_tags,
+    {
+      Name      = each.value.name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -115,11 +124,12 @@ resource "aws_db_subnet_group" "database" {
   subnet_ids  = [for subnet in aws_subnet.database : subnet.id]
 
   tags = merge(
-    {
-      Name = local.database_subnet_group_name
-    },
     local.common_tags,
-    var.database_subnet_group_tags
+    var.database_subnet_group_tags,
+    {
+      Name      = local.database_subnet_group_name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -149,12 +159,15 @@ resource "aws_subnet" "elasticache" {
   ) : null
 
   tags = merge(
+    local.common_tags,
     {
-      Name = each.value.name
       Type = "elasticache"
     },
-    local.common_tags,
-    var.elasticache_subnet_tags
+    var.elasticache_subnet_tags,
+    {
+      Name      = each.value.name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -167,11 +180,12 @@ resource "aws_elasticache_subnet_group" "elasticache" {
   subnet_ids  = [for subnet in aws_subnet.elasticache : subnet.id]
 
   tags = merge(
-    {
-      Name = local.elasticache_subnet_group_name
-    },
     local.common_tags,
-    var.elasticache_subnet_group_tags
+    var.elasticache_subnet_group_tags,
+    {
+      Name      = local.elasticache_subnet_group_name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -201,12 +215,15 @@ resource "aws_subnet" "redshift" {
   ) : null
 
   tags = merge(
+    local.common_tags,
     {
-      Name = each.value.name
       Type = "redshift"
     },
-    local.common_tags,
-    var.redshift_subnet_tags
+    var.redshift_subnet_tags,
+    {
+      Name      = each.value.name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -219,11 +236,12 @@ resource "aws_redshift_subnet_group" "redshift" {
   subnet_ids  = [for subnet in aws_subnet.redshift : subnet.id]
 
   tags = merge(
-    {
-      Name = local.redshift_subnet_group_name
-    },
     local.common_tags,
-    var.redshift_subnet_group_tags
+    var.redshift_subnet_group_tags,
+    {
+      Name      = local.redshift_subnet_group_name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -253,12 +271,15 @@ resource "aws_subnet" "intra" {
   ) : null
 
   tags = merge(
+    local.common_tags,
     {
-      Name = each.value.name
       Type = "intra"
     },
-    local.common_tags,
-    var.intra_subnet_tags
+    var.intra_subnet_tags,
+    {
+      Name      = each.value.name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -282,11 +303,14 @@ resource "aws_subnet" "outpost" {
   outpost_arn       = each.value.outpost_arn
 
   tags = merge(
+    local.common_tags,
     {
-      Name = each.value.name
       Type = "outpost"
     },
-    local.common_tags,
-    var.outpost_subnet_tags
+    var.outpost_subnet_tags,
+    {
+      Name      = each.value.name
+      ManagedBy = "Terraform"
+    }
   )
 }

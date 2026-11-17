@@ -9,12 +9,15 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
+    local.common_tags,
     {
-      Name = local.public_route_table_name
       Type = "public"
     },
-    local.common_tags,
-    var.public_route_table_tags
+    var.public_route_table_tags,
+    {
+      Name      = local.public_route_table_name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -65,12 +68,15 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
+    local.common_tags,
     {
-      Name = local.private_route_table_names[tonumber(each.key)]
       Type = "private"
     },
-    local.common_tags,
-    var.private_route_table_tags
+    var.private_route_table_tags,
+    {
+      Name      = local.private_route_table_names[tonumber(each.key)]
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -84,12 +90,12 @@ resource "aws_route" "private_nat_gateway" {
   destination_cidr_block = "0.0.0.0/0"
 
   # Route to appropriate NAT Gateway based on strategy
-  nat_gateway_id = element(
-    [for nat in aws_nat_gateway.this : nat.id],
+  # Index by numeric key (map iteration order is lexical: "10" < "2")
+  nat_gateway_id = aws_nat_gateway.this[tostring((
     var.single_nat_gateway ? 0 : (
       var.one_nat_gateway_per_az ? tonumber(each.key) % local.len_azs : tonumber(each.key)
     )
-  )
+  ) % local.nat_gateway_count)].id
 
   timeouts {
     create = "5m"
@@ -131,12 +137,15 @@ resource "aws_route_table" "database" {
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
+    local.common_tags,
     {
-      Name = local.database_route_table_names[tonumber(each.key)]
       Type = "database"
     },
-    local.common_tags,
-    var.database_route_table_tags
+    var.database_route_table_tags,
+    {
+      Name      = local.database_route_table_names[tonumber(each.key)]
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -149,12 +158,12 @@ resource "aws_route" "database_nat_gateway" {
   route_table_id         = aws_route_table.database[each.key].id
   destination_cidr_block = "0.0.0.0/0"
 
-  nat_gateway_id = element(
-    [for nat in aws_nat_gateway.this : nat.id],
+  # Index by numeric key (map iteration order is lexical: "10" < "2")
+  nat_gateway_id = aws_nat_gateway.this[tostring((
     var.single_nat_gateway ? 0 : (
       var.one_nat_gateway_per_az ? tonumber(each.key) % local.len_azs : tonumber(each.key)
     )
-  )
+  ) % local.nat_gateway_count)].id
 
   timeouts {
     create = "5m"
@@ -181,12 +190,15 @@ resource "aws_route_table" "elasticache" {
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
+    local.common_tags,
     {
-      Name = local.elasticache_route_table_names[tonumber(each.key)]
       Type = "elasticache"
     },
-    local.common_tags,
-    var.elasticache_route_table_tags
+    var.elasticache_route_table_tags,
+    {
+      Name      = local.elasticache_route_table_names[tonumber(each.key)]
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -199,12 +211,12 @@ resource "aws_route" "elasticache_nat_gateway" {
   route_table_id         = aws_route_table.elasticache[each.key].id
   destination_cidr_block = "0.0.0.0/0"
 
-  nat_gateway_id = element(
-    [for nat in aws_nat_gateway.this : nat.id],
+  # Index by numeric key (map iteration order is lexical: "10" < "2")
+  nat_gateway_id = aws_nat_gateway.this[tostring((
     var.single_nat_gateway ? 0 : (
       var.one_nat_gateway_per_az ? tonumber(each.key) % local.len_azs : tonumber(each.key)
     )
-  )
+  ) % local.nat_gateway_count)].id
 
   timeouts {
     create = "5m"
@@ -231,12 +243,15 @@ resource "aws_route_table" "redshift" {
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
+    local.common_tags,
     {
-      Name = local.redshift_route_table_names[tonumber(each.key)]
       Type = "redshift"
     },
-    local.common_tags,
-    var.redshift_route_table_tags
+    var.redshift_route_table_tags,
+    {
+      Name      = local.redshift_route_table_names[tonumber(each.key)]
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -249,12 +264,12 @@ resource "aws_route" "redshift_nat_gateway" {
   route_table_id         = aws_route_table.redshift[each.key].id
   destination_cidr_block = "0.0.0.0/0"
 
-  nat_gateway_id = element(
-    [for nat in aws_nat_gateway.this : nat.id],
+  # Index by numeric key (map iteration order is lexical: "10" < "2")
+  nat_gateway_id = aws_nat_gateway.this[tostring((
     var.single_nat_gateway ? 0 : (
       var.one_nat_gateway_per_az ? tonumber(each.key) % local.len_azs : tonumber(each.key)
     )
-  )
+  ) % local.nat_gateway_count)].id
 
   timeouts {
     create = "5m"
@@ -282,12 +297,15 @@ resource "aws_route_table" "intra" {
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
+    local.common_tags,
     {
-      Name = local.intra_route_table_names[tonumber(each.key)]
       Type = "intra"
     },
-    local.common_tags,
-    var.intra_route_table_tags
+    var.intra_route_table_tags,
+    {
+      Name      = local.intra_route_table_names[tonumber(each.key)]
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -305,7 +323,7 @@ resource "aws_route_table_association" "intra" {
 
 # Propagate VPN Gateway routes to public route tables
 resource "aws_vpn_gateway_route_propagation" "public" {
-  count = local.enable_vpn_gateway && var.propagate_public_route_tables_vgw ? 1 : 0
+  count = local.enable_vpn_gateway && var.propagate_public_route_tables_vgw && local.create_public_route_table ? 1 : 0
 
   route_table_id = aws_route_table.public[0].id
   vpn_gateway_id = var.vpn_gateway_id != null ? var.vpn_gateway_id : aws_vpn_gateway.this[0].id

@@ -17,24 +17,30 @@ resource "aws_default_network_acl" "this" {
   dynamic "ingress" {
     for_each = var.default_network_acl_ingress
     content {
-      rule_no    = ingress.value.rule_number
-      protocol   = ingress.value.protocol
-      action     = ingress.value.rule_action
-      cidr_block = lookup(ingress.value, "cidr_block", null)
-      from_port  = lookup(ingress.value, "from_port", null)
-      to_port    = lookup(ingress.value, "to_port", null)
+      rule_no         = ingress.value.rule_number
+      protocol        = ingress.value.protocol
+      action          = ingress.value.rule_action
+      cidr_block      = lookup(ingress.value, "cidr_block", null)
+      ipv6_cidr_block = lookup(ingress.value, "ipv6_cidr_block", null)
+      icmp_type       = lookup(ingress.value, "icmp_type", null)
+      icmp_code       = lookup(ingress.value, "icmp_code", null)
+      from_port       = lookup(ingress.value, "from_port", null)
+      to_port         = lookup(ingress.value, "to_port", null)
     }
   }
 
   dynamic "egress" {
     for_each = var.default_network_acl_egress
     content {
-      rule_no    = egress.value.rule_number
-      protocol   = egress.value.protocol
-      action     = egress.value.rule_action
-      cidr_block = lookup(egress.value, "cidr_block", null)
-      from_port  = lookup(egress.value, "from_port", null)
-      to_port    = lookup(egress.value, "to_port", null)
+      rule_no         = egress.value.rule_number
+      protocol        = egress.value.protocol
+      action          = egress.value.rule_action
+      cidr_block      = lookup(egress.value, "cidr_block", null)
+      ipv6_cidr_block = lookup(egress.value, "ipv6_cidr_block", null)
+      icmp_type       = lookup(egress.value, "icmp_type", null)
+      icmp_code       = lookup(egress.value, "icmp_code", null)
+      from_port       = lookup(egress.value, "from_port", null)
+      to_port         = lookup(egress.value, "to_port", null)
     }
   }
 
@@ -56,12 +62,15 @@ resource "aws_network_acl" "public" {
   subnet_ids = [for subnet in aws_subnet.public : subnet.id]
 
   tags = merge(
+    local.common_tags,
     {
-      Name = "${local.region_prefix}-nacl-${var.public_subnet_suffix}-${var.account_name}-${var.project_name}"
       Type = "public"
     },
-    local.common_tags,
-    var.public_acl_tags
+    var.public_acl_tags,
+    {
+      Name      = "${local.name_prefix}nacl-${var.public_subnet_suffix}-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -72,15 +81,16 @@ resource "aws_network_acl_rule" "public_inbound" {
 
   network_acl_id = aws_network_acl.public[0].id
 
-  egress      = false
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = false
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 resource "aws_network_acl_rule" "public_outbound" {
@@ -90,15 +100,16 @@ resource "aws_network_acl_rule" "public_outbound" {
 
   network_acl_id = aws_network_acl.public[0].id
 
-  egress      = true
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = true
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 ################################################################################
@@ -112,12 +123,15 @@ resource "aws_network_acl" "private" {
   subnet_ids = [for subnet in aws_subnet.private : subnet.id]
 
   tags = merge(
+    local.common_tags,
     {
-      Name = "${local.region_prefix}-nacl-${var.private_subnet_suffix}-${var.account_name}-${var.project_name}"
       Type = "private"
     },
-    local.common_tags,
-    var.private_acl_tags
+    var.private_acl_tags,
+    {
+      Name      = "${local.name_prefix}nacl-${var.private_subnet_suffix}-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -128,15 +142,16 @@ resource "aws_network_acl_rule" "private_inbound" {
 
   network_acl_id = aws_network_acl.private[0].id
 
-  egress      = false
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = false
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 resource "aws_network_acl_rule" "private_outbound" {
@@ -146,15 +161,16 @@ resource "aws_network_acl_rule" "private_outbound" {
 
   network_acl_id = aws_network_acl.private[0].id
 
-  egress      = true
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = true
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 ################################################################################
@@ -168,12 +184,15 @@ resource "aws_network_acl" "database" {
   subnet_ids = [for subnet in aws_subnet.database : subnet.id]
 
   tags = merge(
+    local.common_tags,
     {
-      Name = "${local.region_prefix}-nacl-${var.database_subnet_suffix}-${var.account_name}-${var.project_name}"
       Type = "database"
     },
-    local.common_tags,
-    var.database_acl_tags
+    var.database_acl_tags,
+    {
+      Name      = "${local.name_prefix}nacl-${var.database_subnet_suffix}-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -184,15 +203,16 @@ resource "aws_network_acl_rule" "database_inbound" {
 
   network_acl_id = aws_network_acl.database[0].id
 
-  egress      = false
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = false
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 resource "aws_network_acl_rule" "database_outbound" {
@@ -202,15 +222,16 @@ resource "aws_network_acl_rule" "database_outbound" {
 
   network_acl_id = aws_network_acl.database[0].id
 
-  egress      = true
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = true
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 ################################################################################
@@ -224,12 +245,15 @@ resource "aws_network_acl" "elasticache" {
   subnet_ids = [for subnet in aws_subnet.elasticache : subnet.id]
 
   tags = merge(
+    local.common_tags,
     {
-      Name = "${local.region_prefix}-nacl-${var.elasticache_subnet_suffix}-${var.account_name}-${var.project_name}"
       Type = "elasticache"
     },
-    local.common_tags,
-    var.elasticache_acl_tags
+    var.elasticache_acl_tags,
+    {
+      Name      = "${local.name_prefix}nacl-${var.elasticache_subnet_suffix}-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -240,15 +264,16 @@ resource "aws_network_acl_rule" "elasticache_inbound" {
 
   network_acl_id = aws_network_acl.elasticache[0].id
 
-  egress      = false
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = false
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 resource "aws_network_acl_rule" "elasticache_outbound" {
@@ -258,15 +283,16 @@ resource "aws_network_acl_rule" "elasticache_outbound" {
 
   network_acl_id = aws_network_acl.elasticache[0].id
 
-  egress      = true
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = true
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 ################################################################################
@@ -280,12 +306,15 @@ resource "aws_network_acl" "redshift" {
   subnet_ids = [for subnet in aws_subnet.redshift : subnet.id]
 
   tags = merge(
+    local.common_tags,
     {
-      Name = "${local.region_prefix}-nacl-${var.redshift_subnet_suffix}-${var.account_name}-${var.project_name}"
       Type = "redshift"
     },
-    local.common_tags,
-    var.redshift_acl_tags
+    var.redshift_acl_tags,
+    {
+      Name      = "${local.name_prefix}nacl-${var.redshift_subnet_suffix}-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -296,15 +325,16 @@ resource "aws_network_acl_rule" "redshift_inbound" {
 
   network_acl_id = aws_network_acl.redshift[0].id
 
-  egress      = false
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = false
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 resource "aws_network_acl_rule" "redshift_outbound" {
@@ -314,15 +344,16 @@ resource "aws_network_acl_rule" "redshift_outbound" {
 
   network_acl_id = aws_network_acl.redshift[0].id
 
-  egress      = true
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = true
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 ################################################################################
@@ -336,12 +367,15 @@ resource "aws_network_acl" "intra" {
   subnet_ids = [for subnet in aws_subnet.intra : subnet.id]
 
   tags = merge(
+    local.common_tags,
     {
-      Name = "${local.region_prefix}-nacl-${var.intra_subnet_suffix}-${var.account_name}-${var.project_name}"
       Type = "intra"
     },
-    local.common_tags,
-    var.intra_acl_tags
+    var.intra_acl_tags,
+    {
+      Name      = "${local.name_prefix}nacl-${var.intra_subnet_suffix}-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -352,15 +386,16 @@ resource "aws_network_acl_rule" "intra_inbound" {
 
   network_acl_id = aws_network_acl.intra[0].id
 
-  egress      = false
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = false
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
 }
 
 resource "aws_network_acl_rule" "intra_outbound" {
@@ -370,13 +405,65 @@ resource "aws_network_acl_rule" "intra_outbound" {
 
   network_acl_id = aws_network_acl.intra[0].id
 
-  egress      = true
-  rule_number = each.value.rule_number
-  rule_action = each.value.rule_action
-  protocol    = each.value.protocol
-  cidr_block  = lookup(each.value, "cidr_block", null)
-  from_port   = lookup(each.value, "from_port", null)
-  to_port     = lookup(each.value, "to_port", null)
-  icmp_type   = lookup(each.value, "icmp_type", null)
-  icmp_code   = lookup(each.value, "icmp_code", null)
+  egress          = true
+  rule_number     = each.value.rule_number
+  rule_action     = each.value.rule_action
+  protocol        = each.value.protocol
+  cidr_block      = lookup(each.value, "cidr_block", null)
+  ipv6_cidr_block = lookup(each.value, "ipv6_cidr_block", null)
+  from_port       = lookup(each.value, "from_port", null)
+  to_port         = lookup(each.value, "to_port", null)
+  icmp_type       = lookup(each.value, "icmp_type", null)
+  icmp_code       = lookup(each.value, "icmp_code", null)
+}
+
+################################################################################
+# Default Security Group
+# Adopts the VPC default security group. With empty rule lists every rule is
+# removed from it, so nothing can accidentally rely on it (CIS 5.4).
+################################################################################
+
+resource "aws_default_security_group" "this" {
+  count = local.create_vpc && var.manage_default_security_group ? 1 : 0
+
+  vpc_id = aws_vpc.this[0].id
+
+  dynamic "ingress" {
+    for_each = var.default_security_group_ingress
+    content {
+      self             = lookup(ingress.value, "self", null)
+      cidr_blocks      = compact(split(",", lookup(ingress.value, "cidr_blocks", "")))
+      ipv6_cidr_blocks = compact(split(",", lookup(ingress.value, "ipv6_cidr_blocks", "")))
+      prefix_list_ids  = compact(split(",", lookup(ingress.value, "prefix_list_ids", "")))
+      security_groups  = compact(split(",", lookup(ingress.value, "security_groups", "")))
+      description      = lookup(ingress.value, "description", null)
+      from_port        = lookup(ingress.value, "from_port", 0)
+      to_port          = lookup(ingress.value, "to_port", 0)
+      protocol         = lookup(ingress.value, "protocol", "-1")
+    }
+  }
+
+  dynamic "egress" {
+    for_each = var.default_security_group_egress
+    content {
+      self             = lookup(egress.value, "self", null)
+      cidr_blocks      = compact(split(",", lookup(egress.value, "cidr_blocks", "")))
+      ipv6_cidr_blocks = compact(split(",", lookup(egress.value, "ipv6_cidr_blocks", "")))
+      prefix_list_ids  = compact(split(",", lookup(egress.value, "prefix_list_ids", "")))
+      security_groups  = compact(split(",", lookup(egress.value, "security_groups", "")))
+      description      = lookup(egress.value, "description", null)
+      from_port        = lookup(egress.value, "from_port", 0)
+      to_port          = lookup(egress.value, "to_port", 0)
+      protocol         = lookup(egress.value, "protocol", "-1")
+    }
+  }
+
+  tags = merge(
+    local.common_tags,
+    var.default_security_group_tags,
+    {
+      Name      = local.default_security_group_name
+      ManagedBy = "Terraform"
+    }
+  )
 }

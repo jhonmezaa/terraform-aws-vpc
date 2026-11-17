@@ -25,11 +25,13 @@ resource "aws_vpc_endpoint" "s3" {
   ))
 
   tags = merge(
-    {
-      Name = "${local.region_prefix}-vpce-s3-${var.account_name}-${var.project_name}"
-    },
     local.common_tags,
-    var.s3_endpoint_tags
+    var.vpc_endpoint_tags,
+    var.s3_endpoint_tags,
+    {
+      Name      = "${local.name_prefix}vpce-s3-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -52,10 +54,12 @@ resource "aws_vpc_endpoint" "dynamodb" {
   ))
 
   tags = merge(
-    {
-      Name = "${local.region_prefix}-vpce-dynamodb-${var.account_name}-${var.project_name}"
-    },
     local.common_tags,
-    var.dynamodb_endpoint_tags
+    var.vpc_endpoint_tags,
+    var.dynamodb_endpoint_tags,
+    {
+      Name      = "${local.name_prefix}vpce-dynamodb-${var.account_name}-${var.project_name}"
+      ManagedBy = "Terraform"
+    }
   )
 }

@@ -15,11 +15,12 @@ resource "aws_cloudwatch_log_group" "flow_log" {
   kms_key_id        = var.flow_log_cloudwatch_log_group_kms_key_id
 
   tags = merge(
-    {
-      Name = local.flow_log_cloudwatch_log_group_name
-    },
     local.common_tags,
-    var.flow_log_cloudwatch_log_group_tags
+    var.flow_log_cloudwatch_log_group_tags,
+    {
+      Name      = local.flow_log_cloudwatch_log_group_name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -46,11 +47,12 @@ resource "aws_iam_role" "flow_log_cloudwatch" {
   assume_role_policy = data.aws_iam_policy_document.flow_log_cloudwatch_assume_role[0].json
 
   tags = merge(
-    {
-      Name = local.flow_log_cloudwatch_iam_role_name
-    },
     local.common_tags,
-    var.flow_log_cloudwatch_iam_role_tags
+    var.flow_log_cloudwatch_iam_role_tags,
+    {
+      Name      = local.flow_log_cloudwatch_iam_role_name
+      ManagedBy = "Terraform"
+    }
   )
 }
 
@@ -94,9 +96,7 @@ resource "aws_flow_log" "this" {
 
   # Destination configuration
   log_destination_type = var.flow_log_destination_type
-  log_destination = var.flow_log_destination_type == "cloud-watch-logs" ? (
-    var.flow_log_cloudwatch_log_group_arn != null ? var.flow_log_cloudwatch_log_group_arn : aws_cloudwatch_log_group.flow_log[0].arn
-  ) : var.flow_log_destination_arn
+  log_destination      = var.flow_log_destination_type == "cloud-watch-logs" ? local.flow_log_cloudwatch_log_group_arn : var.flow_log_destination_arn
 
   # IAM role for CloudWatch Logs
   iam_role_arn = var.flow_log_destination_type == "cloud-watch-logs" ? (
@@ -121,10 +121,11 @@ resource "aws_flow_log" "this" {
   max_aggregation_interval = var.flow_log_max_aggregation_interval
 
   tags = merge(
-    {
-      Name = "${local.vpc_name}-flow-log"
-    },
     local.common_tags,
-    var.flow_log_tags
+    var.flow_log_tags,
+    {
+      Name      = "${local.vpc_name}-flow-log"
+      ManagedBy = "Terraform"
+    }
   )
 }
